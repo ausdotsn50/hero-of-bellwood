@@ -8,7 +8,7 @@ explosion_source(ben, vilgax, knocked_into_power_station),
 post_fight_action(ben, transform_to_human, vilgax_defeated),
 omnitrix_malfunction(ben, post_fight),
 end_battle_indicator(explosion),
-end_battle_indicator(explosion).
+arrived_after_five(police).
 
 # Ben’s Rules
 defeats_villain(ben),
@@ -17,8 +17,87 @@ is_savior(ben),
 not_at_scene(kevin),
 malfunction_reason(ben, overuse).
 
-# Kevin's Facts
+# Ben verified
+verified_claim(used_omnitrix(ben, heatblast)),
+verified_claim(attacked_downtown(vilgax, bank)),
+verified_claim(arrived_first(ben)),
+verified_claim(driving_muscle_car(kevin, mid_fight)),
+verified_claim(explosion_source(ben, vilgax, knocked_into_power_station)),
+verified_claim(post_fight_action(ben, transform_to_human, vilgax_defeated)),
+verified_claim(omnitrix_malfunction(ben, post_fight)),
+verified_claim(end_battle_indicator(explosion)),
+verified_claim(arrived_after_five(police)).
 
+# Note true ben statements here 
+verified_claim(used_omnitrix(ben, heatblast)).
+verified_claim(arrived_first(ben)).
+% verified_claim(driving_muscle_car(kevin, mid_fight)).
+% verified_claim(omnitrix_malfunction(ben, post_fight)).
+% verified_claim(end_battle_indicator(explosion)).
+verified_claim(arrived_after_five(police)).
+
+# Note false ben statements here
+verified_claim(attacked_downtown(vilgax, bank)).
+verified_claim(explosion_source(ben, vilgax, knocked_into_power_station)).
+% verified_claim(post_fight_action(ben, transform_to_human, vilgax_defeated)).
+
+# Kevin's Facts
+arrived_first(kevin),
+used_omnitrix(ben, diamondhead),
+attacked_downtown(vilgax, power_station),
+driving_muscle_car(kevin, mid_fight),
+omnitrix_malfunction(ben, mid_fight),
+explosion_source(kevin, vilgax, punched_into_transformer),
+pre_explosion(ben, knocked_out),
+destroyed_ship(vilgax, explosion),
+post_fight_action(kevin, rescued_ben, explosion),
+vilgax_fate(escaped).
+
+# Kevin's Rules
+wins_battle(kevin),
+not_winner(ben),
+is_true_hero(kevin),
+ben_location_false,
+untrue_defeat_vilgax(escaped).
+
+# Kevin verified
+verified_claim(arrived_first(kevin)),
+verified_claim(used_omnitrix(ben, diamondhead)),
+verified_claim(attacked_downtown(vilgax, power_station)),
+verified_claim(driving_muscle_car(kevin, mid_fight)),
+verified_claim(omnitrix_malfunction(ben, mid_fight)),
+verified_claim(explosion_source(kevin, vilgax, punched_into_transformer)),
+verified_claim(pre_explosion(ben, knocked_out)),
+verified_claim(destroyed_ship(vilgax, explosion)),
+verified_claim(post_fight_action(kevin, rescued_ben, explosion)),
+verified_claim(vilgax_fate(escaped)).
+
+# Note true kevin statements here 
+verified_claim(used_omnitrix(ben, diamondhead)).
+verified_claim(attacked_downtown(vilgax, power_station)).
+% verified_claim(driving_muscle_car(kevin, mid_fight)).
+% verified_claim(omnitrix_malfunction(ben, mid_fight)).
+% verified_claim(destroyed_ship(vilgax, explosion)).
+
+# Note false kevin statements here
+verified_claim(arrived_first(kevin)).
+verified_claim(explosion_source(kevin, vilgax, punched_into_transformer)).
+verified_claim(pre_explosion(ben, knocked_out)).
+% verified_claim(post_fight_action(kevin, rescued_ben, explosion)).
+verified_claim(vilgax_fate(escaped)).
+
+# Undisputed facts
+verified_claim(driving_muscle_car(kevin, mid_fight)),
+verified_claim(end_battle_indicator(explosion)),
+verified_claim(destroyed_ship(vilgax, explosion)).
+
+# List of unresolved claims by virtue of 
+( lack of statements from the witness-resolver)
+% verified_claim(omnitrix_malfunction(ben, post_fight)).
+% verified_claim(post_fight_action(ben, transform_to_human, vilgax_defeated)).
+
+% verified_claim(omnitrix_malfunction(ben, mid_fight)).
+% verified_claim(post_fight_action(kevin, rescued_ben, explosion)).
 */
 
 % =================================
@@ -80,18 +159,18 @@ omnitrix_malfunction(ben, mid_fight).
 
 % Ben's
 end_battle_indicator(explosion).
-end_battle_indicator(explosion).
+arrived_after_five(police).
 
 % Kevin's
 pre_explosion(ben, knocked_out).
 destroyed_ship(vilgax, explosion).
-post_fight(vilgax, escaped).
 
 % =================================
 % Character Rules
 % =================================
 
 % Ben's Rules
+/*
 defeats_villain(Person) :-
     final_blow(Person).
 
@@ -104,14 +183,36 @@ is_savior(Person) :-
     defeats_villain(Person).
 
 not_at_scene(Person) :-
-    driving_muscle_car(Person, pre_fight).
+    driving_muscle_car(Person, mid_fight).
 
 malfunction_reason(Person, overuse) :- % who, what
     omnitrix_malfunction(Person, post_fight), % should be a post-fight malfunction
 	used_omnitrix(Person, _). % transformation occurrence
+*/
+
+% Verified Ben-Rules
+defeats_villain(Person) :-
+    verified_claim(final_blow(Person)).
+
+leads_battle(Hero) :-
+	verified_claim(arrived_first(Hero)),
+    verified_claim(used_omnitrix(Hero, _)).
+
+is_savior(Person) :-
+    verified_claim(leads_battle(Person)),
+    verified_claim(defeats_villain(Person)).
+
+not_at_scene(Person) :-
+    verified_claim(driving_muscle_car(Person, mid_fight)). % undisputed=true
+
+malfunction_reason(Person, overuse) :- % who, what
+    verified_claim(omnitrix_malfunction(Person, post_fight)), % should be a post-fight malfunction
+	verified_claim(used_omnitrix(Person, _)). % transformation occurrence
+
 
 % Kevin's Rules
-wins_battle(Person) :-  % Kevin implies he had the last blow based on his facts
+/*
+wins_battle(Person) :-  
 	final_blow(Person),            
     vilgax_fate(escaped).          
 
@@ -119,17 +220,33 @@ not_winner(Hero) :-
 	pre_explosion(Hero, knocked_out).
 
 is_true_hero(Person) :- % To check
-	post_fight_action(Person, rescued_ben, _); 
-    post_fight_action(Person, rescued_civilians, _).  
+	post_fight_action(Person, rescued_ben, explosion). 
 
 % Location claim by Ben: Fight happened in the bank
 % Location claim by Kevin: Fight happened in power station (outside bank)
 ben_location_false :-
     attacked_downtown(vilgax, power_station).
 
-truly_defeated_vilgax(Fate) :-
+untrue_defeat_vilgax(Fate) :-
     vilgax_fate(Fate),
-    Fate = defeated.
+    Fate = escaped.
+*/
+wins_battle(Person) :-  
+	verified_claim(final_blow(Person)),            
+    verified_claim(vilgax_fate(escaped)).          
+
+not_winner(Hero) :- 
+	verified_claim(pre_explosion(Hero, knocked_out)).
+
+is_true_hero(Person) :- % To check
+	verified_claim(post_fight_action(Person, rescued_ben, explosion)). 
+
+ben_location_false :-
+    verified_claim(attacked_downtown(vilgax, power_station)).
+
+untrue_defeat_vilgax(Fate) :-
+    verified_claim(vilgax_fate(Fate)),
+    Fate = escaped.
 
 % =================================
 % 10 Truths - Gwen's Override Truths
@@ -181,6 +298,7 @@ truth(team_saved_bellwood) :-
         !
     ).
 
+multi_truth_predicate(post_fight_action).
 multi_truth_predicate(used_omnitrix).
 multi_truth_predicate(helped_saved_bellwood).
 
@@ -208,13 +326,11 @@ contradicts(Claim, TruthTerm) :-
 
 % If there's contradiction with Gwen's truth, the claim is FALSE
 verified_claim(Claim) :-
-    contradicts(Claim, TruthTerm),
-    truth(TruthTerm),
+    contradicts(Claim, _),
     !,
     fail.
-
-% Check for gaps
 
 % Otherwise, claim is TRUE if it exists in the database
 verified_claim(Claim) :-
     call(Claim).
+
